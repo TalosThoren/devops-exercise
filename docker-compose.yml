@@ -1,0 +1,20 @@
+version: '2'
+services:
+  auth:
+    build: ./auth_service
+    volumes:
+      - ./auth_service:/code
+    ports:
+      - 0.0.0.0:5000:5000
+    depends_on:
+      - mongodb
+  data:
+    build: ./data_service
+    volumes:
+      - ./data_service:/code
+    ports:
+      - 0.0.0.0:5001:5001
+    depends_on:
+      - mongodb
+  mongodb:
+    image: bitnami/mongodb
