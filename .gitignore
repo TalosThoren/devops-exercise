@@ -12,3 +12,7 @@ data_service/env/
 data_service/.Python
 data_service/pip-selfcheck.json
 data_service/__pycache__
+
+# Vim generated files
+*~
+*.swp
