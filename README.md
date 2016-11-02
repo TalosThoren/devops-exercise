@@ -13,6 +13,38 @@ Your next task is to take the two recently built Python Flask APIs and meet the 
 *Bonus (Optional)*
 - If you haven't already, create an efficient docker image based on best practices for at least one service. Be prepared to explain why it's efficient.
 
-## Results
+# Results: David Hayden, Nov. 2016
 
-Make the dev environment automation available via a public github repo with any instructions on how to run your dev environment in an accompanying `README.md` file. Send it in and be prepared to discuss it.
+My development deployment approach is document here. I chose to use
+docker-compose and a Makefile and a couple helper scripts to implement and
+automated test for the currently shipped microservices.
+
+The following workstation tools are required. Workstation bootstrap is outside
+the scope of this assignment, however, these recommendations could be used to
+automate the preparation of a suitible workstation:
+
+- docker 1.10.0 or higher
+- docker-compose 1.8.1 or higher
+- jq (used to parse json in test script)
+- GNU Make (any modern version)
+
+## How it works
+
+To stand up the stack in a development environment, simply run `make`. To run a
+complete test cycle run `make check`. The `curl-check.sh` script can be run on
+its own once a stack is running.
+
+The Makefile has several targets and defaults to `make populate-mongo`
+
+A test directory has been created which contains two directories. `test/data`
+contains dummy data and a helper script for importing that data into mangodb.
+This directory is mounted as a volume at `/test/data` inside the mongodb container
+and make runs `docker exec` to execute the script within the container. The
+`populate-mongo.sh` script is idempotent, and will not attempt to import DB's
+that already exist. This action is implemented in the target `make
+populate-mongo`.
+
+`test/conf` contains a default.conf file used by the nginx container. The
+directory is simply mounted directly to `/etc/nginx/conf.d` and settings are
+picked up automatically. This config implements proxy\_pass'ing to direct
+traffic to the correct endpoints.
