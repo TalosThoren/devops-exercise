@@ -59,8 +59,7 @@ extended to become quite a bit more capable, for example:
 
 - Test script could take arguments for host and port to test against ports
   exposed to the vagrant host (ie vagrant:80 -> host:8080, curl-check.sh could
-  be run from the host as such: `bash ./curl-check localhost:8080`. Flags may be
-  more appropriate (e.g. `-h localhost -p 8080`)
+  be run from the host as such this simple example: `bash ./curl-check localhost:8080`
 
 - More advanced vagrant provisioning could be used to generate a complete
   development environment. For now it is not recommended to make modifications
@@ -72,15 +71,23 @@ Requirements:
  - VirtualBox (any recent version)
  - vagrant (any recent version)
 
+Usage: 
+
 From within the devops-exercise (project root) directory
 
 `$ vagrant up`
 
 `$ vagrant ssh`
 
-`ubuntu@ ubuntu-xenial:/devops/exercise$ make`
+`ubuntu@ubuntu-xenial:/devops/exercise$ make`
 
-Wait for this to build. It make take some time before the services come up
+Wait for this to build. It may take some time before the services come up
 completely. At this point you can run the curl-check.sh script directly, or you
 can run `make check`. We're not storing curl-check.sh with the executable bit
 on, so be sure to run it with bash: `/bin/bash ./curl-check.sh`
+
+## Refactor of test script
+
+The curl-check.sh script has been refactored to reduce code reuse. I ran into
+some issues with how and when bash functions return results. While this test
+script is sufficient for this exercise, it is not the ideal testing solution.
