@@ -16,3 +16,7 @@ data_service/__pycache__
 # Vim generated files
 *~
 *.swp
+
+# Vagrant generated file
+.vagrant/
+*.log
