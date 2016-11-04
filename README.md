@@ -66,3 +66,19 @@ extended to become quite a bit more capable, for example:
   development environment. For now it is not recommended to make modifications
   the project files from within the vagrant instance. My idea is to explore
   packer for such workstation creation.
+
+Requirements:
+
+ - VirtualBox (any recent version)
+ - vagrant (any recent version)
+
+From within the devops-exercise (project root) directory
+
+`$ vagrant up`
+`$ vagrant ssh`
+`ubuntu@ ubuntu-xenial:/devops/exercise$ make`
+
+Wait for this to build. It make take some time before the services come up
+completely. At this point you can run the curl-check.sh script directly, or you
+can run `make check`. We're not storing curl-check.sh with the executable bit
+on, so be sure to run it with bash: `/bin/bash ./curl-check.sh`
