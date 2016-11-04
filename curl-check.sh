@@ -4,6 +4,9 @@
 CURL=$(which curl)
 JQ=$(which jq)
 
+# Options required to collect return code from curl requests
+CURL_OPTIONS="--write-out \"%{http_code}\" --silent --output /dev/null"
+
 #Endpoints
 AUTH_EP="http://0.0.0.0/api/auth"
 DATA_EP="http://0.0.0.0/api/data"
@@ -19,74 +22,72 @@ TEST_VALUE="9999999"
 TEST_EMP_CT="3000"
 
 check_health_auth() {
-    $CURL -X GET "$AUTH_EP/health" \
-        --write-out "%{http_code}" \
-        --silent \
-        --output /dev/null
+    healthy_result='"200"'
+    msg="check_health_auth"
+    response_code=$($CURL -X GET "$AUTH_EP/health" $CURL_OPTIONS)
+    echo $(validate_response $healthy_result $response_code $msg)
 }
 
 check_health_data() {
-    $CURL -X GET "$DATA_EP/health" \
-        --write-out "%{http_code}" \
-        --silent \
-        --output /dev/null
+    healthy_result='"200"'
+    msg="check_health_data"
+    response_code=$($CURL -X GET "$DATA_EP/health" $CURL_OPTIONS)
+    echo $(validate_response $healthy_result $response_code $msg)
 }
 
 check_get_token() {
-    $CURL -X GET "$AUTH_EP/token?key=$TEST_KEY&secret=$TEST_SECRET" \
-        --write-out "%{http_code}" \
-        --silent \
-        --output /dev/null
+    healthy_result='"201"'
+    msg="check_get_token"
+    response_code=$($CURL -X GET "$AUTH_EP/token?key=$TEST_KEY&secret=$TEST_SECRET" $CURL_OPTIONS)
+    echo $(validate_response $healthy_result $response_code $msg)
 }
 
 check_post_accounts() {
+    healthy_result='"201"'
+    msg="check_post_account()"
     token_header="token: $(get_token)"
-    $CURL -X POST "$DATA_EP/accounts?name=$TEST_NAME&valuation=$TEST_VALUE&employees=$TEST_EMP_CT" \
-        -H "$token_header" \
-        --write-out "%{http_code}" \
-        --silent \
-        --output /dev/null
+    response_code=$($CURL -X POST "$DATA_EP/accounts?name=$TEST_NAME&valuation=$TEST_VALUE&employees=$TEST_EMP_CT" -H "$token_header" $CURL_OPTIONS)
+    echo $(validate_response $healthy_result $response_code $msg)
 }
 
 check_get_accounts() {
+    healthy_result='"200"'
+    msg="check_get_accounts"
     token_header="token: $(get_token)"
-    $CURL -X GET "$DATA_EP/accounts" \
-        -H "$token_header" \
-        --write-out "%{http_code}" \
-        --silent \
-        --output /dev/null
+    response_code=$($CURL -X GET "$DATA_EP/accounts" -H "$token_header" $CURL_OPTIONS)
+    echo $(validate_response $healthy_result $response_code $msg)
+}
+
+validate_response() {
+    if [[ $1 == $2 ]]; then
+        echo $(psuccess $2 $3)
+    else
+        echo $(perror $2 $3)
+    fi
+}
+
+psuccess() {
+    printf "SUCCESS: %s returned status code: %s" "$2" "$1"
+}
+
+perror() {
+    printf "ERROR: %s returned status code: %s" "$2" "$1"
 }
 
 # Let's obtain a token expects the jq tool to be in your path
 get_token() {
-    response=$($CURL -X GET "$AUTH_EP/token?key=$TEST_KEY&secret=$TEST_SECRET")
+    response=$($CURL -X GET "$AUTH_EP/token?key=$TEST_KEY&secret=$TEST_SECRET" --silent)
     echo ${response} | jq '.[]' --raw-output
 }
 
 # Run checks
-if [[ '200' != $(check_health_auth) ]]; then
-    echo "ERROR: check_health_auth failed to return 200"
-    exit 1
-fi
+main() {
+    echo $(check_health_auth)
+    echo $(check_health_data)
+    echo $(check_get_token)
+    echo $(check_post_accounts)
+    echo $(check_get_accounts)
+}
 
-if [[ '200' != $(check_health_data) ]]; then
-    echo "ERROR: check_health_data failed to return 200"
-    exit 1
-fi
-
-if [[ '201' != $(check_get_token) ]]; then
-    echo "ERROR: check_get_token failed to return 201"
-    exit 1
-fi
-
-if [[ '201' != $(check_post_accounts) ]]; then
-    echo "ERROR: check_post_accounts failed to return 201"
-    exit 1
-fi
-
-if [[ '200' != $(check_get_accounts) ]]; then
-    echo "ERROR: check_get_accounts failed to return 200"
-    exit 1
-fi
-
-echo "SUCCESS: All curl checks pass!"
+# Execute main
+main
