@@ -75,7 +75,9 @@ Requirements:
 From within the devops-exercise (project root) directory
 
 `$ vagrant up`
+
 `$ vagrant ssh`
+
 `ubuntu@ ubuntu-xenial:/devops/exercise$ make`
 
 Wait for this to build. It make take some time before the services come up
