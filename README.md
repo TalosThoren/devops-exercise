@@ -48,3 +48,21 @@ populate-mongo`.
 directory is simply mounted directly to `/etc/nginx/conf.d` and settings are
 picked up automatically. This config implements proxy\_pass'ing to direct
 traffic to the correct endpoints.
+
+# Update: Nov. 4, 2016
+
+A `Vagrantfile` has been added to facilitate testing on any machine equipped with
+VirtualBox and vagrant. This is intended to enforce testing environment
+consistency. It was found that the latest versions of docker and docker-compose
+are not always intuitive to install on every system. The configuration could be
+extended to become quite a bit more capable, for example:
+
+- Test script could take arguments for host and port to test against ports
+  exposed to the vagrant host (ie vagrant:80 -> host:8080, curl-check.sh could
+  be run from the host as such: `bash ./curl-check localhost:8080`. Flags may be
+  more appropriate (e.g. `-h localhost -p 8080`)
+
+- More advanced vagrant provisioning could be used to generate a complete
+  development environment. For now it is not recommended to make modifications
+  the project files from within the vagrant instance. My idea is to explore
+  packer for such workstation creation.
